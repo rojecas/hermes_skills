@@ -1,26 +1,36 @@
-# Hermes Skills — Integración Zoho MCP
+# Hermes Skills — Colección de Integraciones
 
-Skills y documentación para integrar servicios Zoho (Mail, Calendar, Tasks) con Hermes Agent vía MCP (Model Context Protocol).
+Skills, guías y patrones para integrar servicios con [Hermes Agent](https://github.com/NousResearch/hermes-agent). Cada capítulo documenta una integración completa: configuración, herramientas, pitfalls y flujos de trabajo.
 
-## Contenido
+## Capítulos
 
-| Archivo | Descripción |
-|---------|-------------|
-| `SKILL.md` | Skill principal para agentes IA |
-| `configuracion-mcp.md` | Guía paso a paso de configuración |
-| `mapeo-cuentas.md` | Cómo descubrir y mapear accountIds |
-| `calendario-tareas.md` | Integración con Calendar y Tasks |
-| `lecciones-aprendidas.md` | Pitfalls y soluciones |
+| Capítulo | Descripción |
+|----------|-------------|
+| [📧 Zoho MCP](zoho-mcp/) | Mail, Calendar y Tasks vía MCP |
 
-## Documentación oficial de Zoho
+## Próximos capítulos (planeados)
 
-- [Zoho MCP — Introducción](https://help.zoho.com/portal/en/kb/mcp/getting-started/articles/zoho-mcp-help-documentation)
-- [Zoho Mail MCP — Configuración](https://www.zoho.com/mail/help/mcp/configure-mcp.html)
-- [Zoho Mail MCP — Tools](https://www.zoho.com/mail/help/mcp/zoho-mail-mcp-tools.html)
-- [Zoho Mail MCP — Tool Finder](https://www.zoho.com/mail/help/mcp/zohomail-tools.html)
-- [Zoho MCP Tool Guide](https://help.zoho.com/portal/en/kb/mcp/mcp-tool-manual/articles/zoho-mcp-tool-guide)
-- [Zoho Mail REST API](https://www.zoho.com/mail/help/api/overview.html)
-- [Zoho Calendar API](https://www.zoho.com/calendar/help/api/introduction.html)
+- 🔍 **Hermes Indexer** — indexación de archivos en shares de red (CIFS/Samba) con búsqueda FTS5
+- 💬 **Noósfera Chat** — chat web con Laravel + Hermes como backend
+- ⏰ **Workflows con Cron** — automatización de flujos entre servicios
+- 🧾 **Facturación Electrónica** — integración con sistemas tributarios
+
+## Estructura
+
+```
+hermes_skills/
+├── README.md              ← este archivo
+├── SKILL.md               ← índice para agentes IA
+└── <capitulo>/
+    ├── SKILL.md           ← skill para el agente
+    ├── configuracion.md   ← paso a paso
+    ├── lecciones.md       ← pitfalls y soluciones
+    └── ...                ← documentos específicos
+```
+
+## Uso
+
+Cada capítulo incluye un `SKILL.md` listo para copiar a `~/.hermes/skills/<capitulo>/` y ser usado por Hermes como skill. Las guías en `.md` son para humanos.
 
 ## Licencia
 
