@@ -12,12 +12,12 @@ Colección de integraciones documentadas. Si la tarea involucra alguno de estos 
 | Capítulo | Skill a cargar | Cuándo usar |
 |----------|---------------|-------------|
 | Zoho MCP | `hermes-skills/zoho-mcp` | Correo, calendario o tareas de Zoho |
+| Samba/CIFS | `hermes-skills/samba-cifs` | Conexión a shares de red, indexación de archivos |
 
 ## Capítulos futuros
 
 | Capítulo | Estado |
 |----------|--------|
-| Hermes Indexer (CIFS/Samba) | Planeado |
 | Noósfera Chat (Laravel) | Planeado |
 | Workflows con Cron | Planeado |
 

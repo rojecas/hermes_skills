@@ -7,10 +7,10 @@ Skills, guías y patrones para integrar servicios con [Hermes Agent](https://git
 | Capítulo | Descripción |
 |----------|-------------|
 | [📧 Zoho MCP](zoho-mcp/) | Mail, Calendar y Tasks vía MCP |
+| [🗄️ Samba/CIFS](samba-cifs/) | Montaje de shares, Hermes Indexer, búsqueda FTS5 |
 
 ## Próximos capítulos (planeados)
 
-- 🔍 **Hermes Indexer** — indexación de archivos en shares de red (CIFS/Samba) con búsqueda FTS5
 - 💬 **Noósfera Chat** — chat web con Laravel + Hermes como backend
 - ⏰ **Workflows con Cron** — automatización de flujos entre servicios
 - 🧾 **Facturación Electrónica** — integración con sistemas tributarios
