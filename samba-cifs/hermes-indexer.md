@@ -29,7 +29,7 @@ hermes-index-query --help
 
 ## Configuración: el archivo `.indexrules`
 
-`.indexrules` es un archivo YAML que le dice al indexador **qué carpetas del share debe indexar** y **cómo organizar los resultados en particiones**. Se coloca en la raíz del proyecto o en `~/.hermes/`.
+`.indexrules` es un archivo YAML que le dice al indexador **qué carpetas del share debe indexar** y **cómo organizar los resultados en particiones**. Se coloca en la raíz del share o unidad de red (ej: `W:\.indexrules`), no en el proyecto.
 
 ### ¿Por qué existe?
 
@@ -40,7 +40,7 @@ Un share de red empresarial puede tener 100,000+ archivos en cientos de subcarpe
 ### Estructura
 
 ```yaml
-# .indexrules
+# .indexrules — define qué carpetas indexar, cuales ignorar y cómo particionarlas
 # Cada entrada bajo 'partitions' define una partición independiente
 partitions:
   - name: nombre_corto        # Identificador único para esta partición
@@ -58,7 +58,7 @@ partitions:
 | `prefix` | ❌ | Lista de prefijos separados por coma. Solo indexa archivos cuyo nombre empiece con uno de estos. Ej: `GC, AD, SS` |
 | `description` | ❌ | Texto libre para documentar. Aparece en los metadatos del índice |
 
-### Ejemplo real (anonimizado)
+### Ejemplo de la vida real (lo vi en un capítulo de la Rosa de Guadalupe)
 
 ```yaml
 partitions:

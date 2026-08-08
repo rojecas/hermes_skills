@@ -13,6 +13,7 @@ Colección de integraciones documentadas. Si la tarea involucra alguno de estos 
 |----------|---------------|-------------|
 | Zoho MCP | `hermes-skills/zoho-mcp` | Correo, calendario o tareas de Zoho |
 | Samba/CIFS | `hermes-skills/samba-cifs` | Conexión a shares de red, indexación de archivos |
+| Workflows con Cron | `hermes-skills/cron-workflows` | Automatizar flujos entre servicios |
 
 ## Capítulos futuros
 
