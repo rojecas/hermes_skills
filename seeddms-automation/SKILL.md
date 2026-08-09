@@ -121,7 +121,26 @@ To restrict to read+write without delete: dedicated group with ACL mode=2 on tar
 |-----------|-------------|-----|
 | **Create folder** | `POST /folder/{id}/folder` | Broken in API. Insert into `tblFolders`. |
 
-### Creating folders via MySQL
+### Complete folder creation workflow
+
+```sql
+-- 1. Create folder (owned by Andrew, traced)
+INSERT INTO tblFolders (id, name, comment, parent, folderList, inheritAccess, defaultAccess, date, owner) 
+VALUES (126, 'Folder Name', 'Creado por Andrew - descripción', 10, ':1:10:126:', 1, 2, UNIX_TIMESTAMP(), 9);
+
+-- 2. Replicate ACLs from ISO 9001 pattern (groups 1-4) + agentesIA (group 5)
+INSERT INTO tblACLs (target, targetType, userID, groupID, mode) VALUES
+  (126, 1, -1, 1, 4),
+  (126, 1, -1, 2, 2),
+  (126, 1, -1, 3, 2),
+  (126, 1, -1, 4, 2),
+  (126, 1, -1, 5, 2);
+
+-- 3. Transfer ownership to the responsible person
+UPDATE tblFolders SET owner = 4 WHERE id = 126;  -- Angie = 4
+```
+
+**Result:** Folder created by Andrew (comment preserved for traceability), owned by Angie, with proper ACLs matching ISO 9001 convention.
 
 ```sql
 -- Get next ID
