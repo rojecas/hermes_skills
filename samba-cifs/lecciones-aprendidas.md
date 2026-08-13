@@ -50,13 +50,15 @@ touch /mnt/shares/documentos/test.txt && rm /mnt/shares/documentos/test.txt
 
 ---
 
-## 4. El indexado nocturno compite con backups
+## 4. La indexación nocturna falla si el NAS se apaga de noche
 
-**Problema:** Si la indexación y los backups corren a la misma hora, compiten por I/O de red y pueden saturar el enlace.
+**Problema:** Programar la indexación de madrugada (2:00 AM) parece ideal ("cero actividad"), pero si el servidor NAS se apaga de noche (~8pm–7:30am), el cron falla con "No route to host". Además, diagnosticar por `ping` engaña: el NAS puede no responder ICMP (bloqueado por firewall) aunque SMB y SSH sí funcionen.
 
-**Solución:** Escalonar los horarios:
-- Backup diario: 1:00 PM (almuerzo, baja actividad)
-- Indexación: 2:00 AM (madrugada, cero actividad)
+**Solución:** Indexar en horas laborales, dos veces al día:
+- Indexación: 13:00 y 16:00 (NAS encendido; captura los cambios de la mañana y de la tarde)
+- Backup diario: 18:00 (tras la segunda indexación)
+
+**Diagnóstico correcto:** verificar conectividad por puertos TCP (445 SMB, 22 SSH), no por `ping`.
 
 ---
 
@@ -67,7 +69,7 @@ touch /mnt/shares/documentos/test.txt && rm /mnt/shares/documentos/test.txt
 **Solución:** 
 - Documentar `.indexrules` como parte de la configuración de infraestructura
 - Revisar trimestralmente que las particiones reflejen la estructura real de los shares
-- Usar `hermes-indexer --all --force` después de cada cambio
+- Usar `hermes-indexer --output <dir> --force` después de cada cambio
 
 ---
 

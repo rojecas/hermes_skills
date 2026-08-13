@@ -29,7 +29,7 @@ hermes-index-query --help
 
 ## Configuración: el archivo `.indexrules`
 
-`.indexrules` es un archivo YAML que le dice al indexador **qué carpetas del share debe indexar** y **cómo organizar los resultados en particiones**. Se coloca en la raíz del share o unidad de red (ej: `W:\.indexrules`), no en el proyecto.
+`.indexrules` es un archivo **JSON** que le dice al indexador **qué carpetas del share debe indexar** y **cómo organizar los resultados en particiones**. Se coloca en la raíz del share o unidad de red (ej: `W:\.indexrules`), no en el proyecto.
 
 ### ¿Por qué existe?
 
@@ -39,82 +39,97 @@ Un share de red empresarial puede tener 100,000+ archivos en cientos de subcarpe
 
 ### Estructura
 
-```yaml
-# .indexrules — define qué carpetas indexar, cuales ignorar y cómo particionarlas
-# Cada entrada bajo 'partitions' define una partición independiente
-partitions:
-  - name: nombre_corto        # Identificador único para esta partición
-    path: /ruta/a/la/carpeta  # Ruta absoluta en el sistema de archivos
-    prefix: GC, AD            # (opcional) Solo indexar archivos que empiecen con estos prefijos
-    description: Descripción  # (opcional) Para documentar qué contiene
+```json
+// .indexrules — define qué carpetas indexar, cuáles ignorar y cómo particionarlas
+// Cada clave bajo 'partitions' define una partición independiente
+{
+  "description": "Descripción humana de la unidad",
+  "root_path": "//192.168.1.10/Share",        // (opcional) default: //192.168.1.10/{letra}
+  "exclude": {                                  // (opcional)
+    "dirs": ["Temp", "Carpeta"],
+    "patterns": [".0*", "*_archivos"]
+  },
+  "partitions": {
+    "V_iso9001": {
+      "root": "ISO 9001",                      // subdirectorio, o "." para raíz
+      "description": "Sistema de Gestión de Calidad ISO 9001",
+      "include_only": ["Sub1", "Sub2"]         // solo con root="."
+    }
+  }
+}
 ```
 
 ### ¿Qué va en cada campo?
 
 | Campo | Obligatorio | Descripción |
 |-------|:----------:|-------------|
-| `name` | ✅ | Nombre corto, sin espacios. Se usa en `--partition` y como nombre del archivo JSON |
-| `path` | ✅ | Ruta absoluta a la carpeta raíz de esta partición |
-| `prefix` | ❌ | Lista de prefijos separados por coma. Solo indexa archivos cuyo nombre empiece con uno de estos. Ej: `GC, AD, SS` |
-| `description` | ❌ | Texto libre para documentar. Aparece en los metadatos del índice |
+| `description` | ✅ | Nombre descriptivo de la unidad. Aparece en logs y `_meta.json` |
+| `root_path` | ❌ | Ruta UNC del share. Default: `//192.168.1.10/{letra}` |
+| `exclude.dirs` | ❌ | Nombres exactos de carpetas a excluir |
+| `exclude.patterns` | ❌ | Patrones glob (`.0*` = archivo muerto) |
+| `partitions.{n}.root` | ✅ | Subdirectorio a indexar, o `"."` para la raíz |
+| `partitions.{n}.description` | ❌ | Texto libre para documentar |
+| `partitions.{n}.include_only` | ❌ | Solo con `root: "."` — lista de carpetas a incluir |
 
-### Ejemplo de la vida real (lo vi en un capítulo de la Rosa de Guadalupe)
+### Ejemplo real
 
-```yaml
-partitions:
-  - name: calidad
-    path: /mnt/shares/calidad
-    prefix: GC, AD, SS
-    description: Sistema de Gestión de Calidad — ISO 9001, 17025, 45001
-
-  - name: tecnico
-    path: /mnt/shares/tecnico
-    prefix: ST, CS, CT
-    description: Servicio Técnico (ST), Metrología (CS), Soporte Técnico (CT)
-
-  - name: comercial
-    path: /mnt/shares/comercial
-    prefix: DC
-    description: División Comercial — cotizaciones, órdenes de compra, clientes
-
-  - name: documentos
-    path: /mnt/shares/documentos
-    description: Documentos generales (sin filtro de prefijo)
+```json
+{
+  "description": "Calidad, ISO, SST (SIC)",
+  "root_path": "//192.168.1.10/SIC",
+  "exclude": {"dirs": ["Temp", "temp"], "patterns": []},
+  "partitions": {
+    "V_iso9001": {"root": "ISO 9001", "description": "Sistema de Gestión de Calidad ISO 9001"},
+    "V_iso17025": {"root": "ISO 17025", "description": "Acreditación de Laboratorios ISO 17025"},
+    "V_iso45001": {"root": "ISO 45001", "description": "Seguridad y Salud en el Trabajo ISO 45001"},
+    "V_bpl_oms": {"root": "BPL OMS", "description": "Buenas Prácticas de Laboratorio OMS"}
+  }
+}
 ```
 
-**Nota:** La última partición (`documentos`) no tiene `prefix`, así que indexa **todos** los archivos de esa carpeta. Esto es útil para shares de propósito general donde no aplica un sistema de prefijos.
+**Nota:** para agrupar varias carpetas pequeñas de la raíz en una sola partición, usar `root: "."` con `include_only`:
+
+```json
+"X_admin": {
+  "root": ".",
+  "description": "Carpetas administrativas agrupadas",
+  "include_only": ["Administracion", "Area Fisica", "Papeleria", "Plantillas"]
+}
+```
 
 ### ¿Qué produce cada partición?
 
-Para la configuración anterior, el indexador genera:
+Para la configuración anterior, el indexador genera un JSON por partición:
 
 ```
 /ruta/indices/
-├── calidad.json       ← metadatos + lista de archivos de /mnt/shares/calidad
-├── tecnico.json       ← metadatos + lista de archivos de /mnt/shares/tecnico
-├── comercial.json     ← metadatos + lista de archivos de /mnt/shares/comercial
-├── documentos.json    ← metadatos + lista de archivos de /mnt/shares/documentos
-└── indices.db         ← base SQLite FTS5 consolidada (búsquedas <50ms)
+├── V_iso9001.json      ← metadatos + lista de archivos de /mnt/inasc/V/ISO 9001
+├── V_iso17025.json     ← metadatos + lista de archivos de /mnt/inasc/V/ISO 17025
+├── V_iso45001.json     ← metadatos + lista de archivos de /mnt/inasc/V/ISO 45001
+├── V_bpl_oms.json      ← metadatos + lista de archivos de /mnt/inasc/V/BPL OMS
+├── _meta.json          ← metadatos globales (unidades, total de archivos, duración)
+└── hermes_index.sqlite ← base SQLite FTS5 consolidada (búsquedas <50ms)
 ```
 
 Cada JSON contiene:
-- `meta`: nombre, ruta, prefijos, fecha de generación, total de archivos
-- `files`: array con `[ruta_relativa, nombre, extensión, tamaño, fecha_modificación]` de cada archivo
+- `meta`: unit, partition, total_files, version
+- `files[]`: array con `relative_path`, `filename`, `prefix`, `document_type`, `size_bytes`, `last_modified`, `year`, `client`, `tags`…
+- `directories[]`: estructura de carpetas
 
 ## Indexación
 
 ```bash
-# Primera indexación (completa)
-hermes-indexer --all
+# Primera indexación (completa) — escanea todas las unidades con .indexrules
+hermes-indexer --output /ruta/indices --verbose
 
-# Indexar solo una partición
-hermes-indexer --partition tecnico
+# Indexar solo una unidad (V, X, Y, W)
+hermes-indexer --output /ruta/indices --unit V --verbose
 
-# Reindexar todo (útil al agregar particiones nuevas)
-hermes-indexer --all --force
+# Reindexar forzando (ignora el índice anterior)
+hermes-indexer --output /ruta/indices --force
 
-# Generar base SQLite FTS5 para búsqueda rápida
-hermes-indexer --build-db
+# Generar base SQLite FTS5 para búsqueda rápida (migra los JSON ya existentes)
+hermes-indexer --output /ruta/indices --build-db
 ```
 
 **Tiempos típicos** para ~120,000 archivos:
@@ -152,17 +167,15 @@ hermes-index-query --prefix DC --year 2026 --client "CLIENTE_X"
 
 ## Automatización con cron
 
-Reindexar cada noche para mantener los índices actualizados:
+Reindexar dos veces al día, en horas laborales, para mantener los índices actualizados:
 
 ```bash
-# En Hermes: cronjob create
-hermes-indexer --all --force && hermes-indexer --build-db
+# En crontab del sistema (NO a las 2 AM — el servidor NAS se apaga de noche)
+0 13 * * * hermes-indexer --output /ruta/indices --build-db
+0 16 * * * hermes-indexer --output /ruta/indices --build-db
 ```
 
-Programar a las 2:00 AM (cuando no hay actividad en los shares):
-```
-0 2 * * * cd /ruta/indices && hermes-indexer --all --force && hermes-indexer --build-db
-```
+**⚠️ Lección aprendida:** NO programar de noche (2 AM). El servidor NAS (uwa) se apaga de noche (~8pm–7:30am), así que un cron nocturno falla con "No route to host". Programar en horas laborales (13:00 y 16:00), cuando el NAS está encendido.
 
 ## Uso desde Hermes
 
@@ -175,17 +188,29 @@ Con el índice disponible, el agente puede:
 
 ## Referencia de flags
 
+### `hermes-index-query` (búsquedas)
+
 | Flag | Descripción |
 |------|-------------|
 | `--query` | Búsqueda FTS5 (full-text) |
 | `--client` | Filtrar por nombre de cliente |
 | `--year` | Filtrar por año |
 | `--unit` | Filtrar por letra de unidad (V, W, X, Y) |
-| `--type` | Filtrar por extensión (pdf, xlsx, docx) |
-| `--prefix` | Filtrar por prefijo de documento (GC, AD, ST, DC...) |
-| `--recent` | Archivos más recientes |
+| `--type` | Filtrar por tipo de documento (Procedimiento, Formato, Manual…) |
+| `--prefix` | Filtrar por prefijo de documento (GC, AD, ST, DC…) |
+| `--recent` | Archivos más recientes (N días) |
 | `--count` | Solo mostrar conteo |
-| `--build-db` | Reconstruir índice SQLite FTS5 |
-| `--all` | Indexar todas las particiones |
-| `--partition` | Indexar una partición específica |
-| `--force` | Forzar reindexación completa |
+| `--limit` | Máximo de resultados |
+| `--format` | `json` (default) o `text` |
+
+### `hermes-indexer` (indexación)
+
+| Flag | Descripción |
+|------|-------------|
+| `--output <dir>` | Directorio de salida de los JSON (obligatorio) |
+| `--unit` | Indexar solo una unidad (V, X, Y, W) |
+| `--force` | Forzar aunque el índice esté vigente |
+| `--verbose` | Mostrar progreso en stderr |
+| `--hash` | Calcular MD5 (lento en CIFS) |
+| `--build-db` | Migrar JSONs a SQLite FTS5 tras indexar |
+| `--build-db-only` | Solo construir SQLite desde JSONs existentes |
