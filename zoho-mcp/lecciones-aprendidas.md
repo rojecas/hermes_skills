@@ -98,8 +98,8 @@ Hermes maneja esto automáticamente. Solo es relevante al depurar con `curl`.
 **Solución:** Usar siempre `uid` como `caluid`.
 
 ```json
-// ❌ caluid: "5060130000000009003"  (id)
-// ✅ caluid: "616278b200df4924b83bcb9ea156b7f6"  (uid)
+// ❌ caluid: "XXXXXXXXXXXXX9003"  (id)
+// ✅ caluid: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"  (uid)
 ```
 
 ---
@@ -171,6 +171,32 @@ El MCP URL mostrado en docs (`mcp.zoho.com/v1/servers/<id>/mcp`) no coincide con
 
 ---
 
+## 14. `sendEmail` → nombre real `ZohoMail_sendEmail` (con prefijo) + formato
+
+**Problema:** Llamar a la tool como `sendEmail` (sin prefijo) devuelve "Error while executing tool: sendEmail". El nombre real lleva el prefijo del servicio: `ZohoMail_sendEmail`.
+
+**Formato obligatorio:**
+
+```json
+{
+  "path_variables": { "accountId": "XXXX" },
+  "body": {
+    "fromAddress": "cuenta@dominio.com",
+    "toAddress": "destinatario@dominio.com",
+    "subject": "Asunto",
+    "content": "Cuerpo del correo",
+    "mailFormat": "plaintext"
+  }
+}
+```
+
+**Claves:**
+- `fromAddress` es OBLIGATORIO y debe corresponder a la cuenta autenticada del servidor MCP.
+- El cuerpo va en `body.content` (NO existe `body.body`).
+- `accountId` va en `path_variables`, no en `body`.
+
+---
+
 ## Resumen rápido para depuración
 
 | Síntoma | Causa probable | Solución |
@@ -183,3 +209,4 @@ El MCP URL mostrado en docs (`mcp.zoho.com/v1/servers/<id>/mcp`) no coincide con
 | `JSON parser error` | `dateandtime` como string | Usar objeto `{start, end, timezone}` |
 | Tarea "No Title" | Solo se usó `description` | Agregar `title` |
 | Cuerpo de correo vacío | Vista previa de Zoho Mail | Abrir mensaje completo o revisar en otro cliente |
+| "Error while executing tool: sendEmail" | Nombre de tool sin prefijo | Usar `ZohoMail_sendEmail` con `path_variables.accountId` + `body.fromAddress` + `body.content` |

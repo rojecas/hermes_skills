@@ -5,7 +5,7 @@
 Las herramientas de Zoho Mail MCP requieren un `accountId` como `path_variables` en cada llamada a la API. Pero este `accountId` **NO es**:
 
 - ❌ El **User ID** de Zoho (visible en `accounts.zoho.com` → Usuarios → `8069XXXXX`)
-- ❌ El **Organization ID** (visible en la consola MCP → `806941623`)
+- ❌ El **Organization ID** (visible en la consola MCP → `000000000`)
 - ❌ La **dirección de correo** (ej: `usuario@dominio.com`)
 
 Usar cualquiera de estos valores produce errores:
@@ -28,9 +28,9 @@ El `accountId` es un ID interno generado por Zoho al añadir la cuenta al servid
 ```json
 // Respuesta incluye:
 {
-  "policyId": { "zoid": 806941623 },
-  "zuid": 806942252,        // ← User ID (NO usar como accountId)
-  "accountId": "2057888000000008002"  // ← ESTE es el accountId real
+  "policyId": { "zoid": 000000000 },
+  "zuid": 000000000,        // ← User ID (NO usar como accountId)
+  "accountId": "XXXXXXXXXXXXX8002"  // ← ESTE es el accountId real
 }
 ```
 
@@ -39,7 +39,7 @@ El `accountId` es un ID interno generado por Zoho al añadir la cuenta al servid
 // Respuesta incluye para cada usuario:
 {
   "displayName": "Usuario Uno",
-  "accountId": "2239525000000008002",
+  "accountId": "XXXXXXXXXXXXX8002",
   "primaryEmailAddress": "usuario01@dominio.com",
   "role": "member"
 }
@@ -51,11 +51,11 @@ El `accountId` es un ID interno generado por Zoho al añadir la cuenta al servid
 
 | Usuario | Email | accountId |
 |---------|-------|-----------|
-| Admin TI | admin@organizacion.com | `2057888000000008002` |
-| Usuario 01 | usuario01@organizacion.com | `2239525000000008002` |
-| Usuario 02 | usuario02@organizacion.com | `2233514000000008002` |
-| Usuario 03 | usuario03@organizacion.com | `2237958000000008002` |
-| Usuario 04 | usuario04@organizacion.com | `2230561000000008002` |
+| Admin TI | admin@organizacion.com | `XXXXXXXXXXXXX8002` |
+| Usuario 01 | usuario01@organizacion.com | `XXXXXXXXXXXXX8002` |
+| Usuario 02 | usuario02@organizacion.com | `XXXXXXXXXXXXX8002` |
+| Usuario 03 | usuario03@organizacion.com | `XXXXXXXXXXXXX8002` |
+| Usuario 04 | usuario04@organizacion.com | `XXXXXXXXXXXXX8002` |
 
 ## Uso en herramientas
 
@@ -63,7 +63,7 @@ Todas las herramientas de Zoho Mail que operan sobre una cuenta requieren `accou
 
 ```json
 {
-  "path_variables": { "accountId": "2239525000000008002" },
+  "path_variables": { "accountId": "XXXXXXXXXXXXX8002" },
   "query_params": { "fields": "subject,fromAddress,receivedTime", "limit": 5 }
 }
 ```
@@ -73,7 +73,7 @@ Las herramientas de Calendar usan `caluid` (el `uid` del calendario, no el `id`)
 ```json
 {
   "body": {
-    "caluid": "e34bd4c00f3c411f9bcf589436789fd9",
+    "caluid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "title": "Evento de prueba",
     "dateandtime": {
       "start": "20260813",

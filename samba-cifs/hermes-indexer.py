@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""hermes-indexer v2.1 — Indexa unidades Samba de INASC con particiones por dominio.
+"""hermes-indexer v2.1 — Indexa unidades Samba con particiones por dominio.
 
 Las reglas de indexado se definen en .indexrules (JSON) en la raíz de cada unidad.
 Sin configuración hardcodeada — auto-descubrimiento.
@@ -10,7 +10,7 @@ Uso:
 Formato de .indexrules:
     {
       "description": "...",
-      "root_path": "//192.168.1.10/...",
+      "root_path": "//server/...",
       "exclude": {"dirs": ["Temp"], "patterns": []},
       "partitions": {
         "U_nombre": {"root": "Carpeta", "description": "...", "include_only": [...]}
@@ -55,7 +55,7 @@ EXCLUDE_DIR_PATTERNS = [
 # Descubrimiento de unidades vía .indexrules
 # ═══════════════════════════════════════════════════════════════════════════════
 
-INASC_MOUNTS = "/mnt/inasc"
+MOUNTS_BASE = "/mnt/shares"
 
 
 def _load_rules(path: str) -> dict | None:
@@ -97,7 +97,7 @@ def discover_units(unit_filter: str | None = None) -> dict:
         units[letter] = {
             "mount": mount,
             "description": rules.get("description", letter),
-            "root_path": rules.get("root_path", f"//192.168.1.10/{letter}"),
+            "root_path": rules.get("root_path", f"//server/{letter}"),
             "exclude_dirs": set(rules.get("exclude", {}).get("dirs", [])),
             "exclude_patterns": rules.get("exclude", {}).get("patterns", []),
             "partitions": rules.get("partitions", {}),
@@ -126,7 +126,7 @@ DOC_TYPES = {
 }
 
 TAG_KEYWORDS = {
-    "calibración": ["calibracion", "calibración", "metrologia", "metrología", "ccmt"],
+    "calibración": ["calibracion", "calibración", "metrologia", "metrología"],
     "mantenimiento": ["mantenimiento", "servicio técnico", "servicio tecnico", "reparacion", "reparación"],
     "calidad": ["calidad", "iso 9001", "iso9001", "sgc"],
     "sst": ["sst", "iso 45001", "iso45001", "seguridad", "salud"],
@@ -142,9 +142,9 @@ TAG_KEYWORDS = {
 }
 
 CLIENTS = [
-    "Providencia", "Riopaila", "Castilla", "Mayaguez", "Manuelita",
-    "Cauca", "Risaralda", "Carmelita", "San Carlos", "Cristóbal Colón",
-    "Maria Luisa", "INASC",
+    "Cliente Uno", "Cliente Dos", "Cliente Tres", "Cliente Cuatro", "Cliente Cinco",
+    "Cliente Seis", "Cliente Siete", "Cliente Ocho", "Cliente Nueve", "Cliente Diez",
+    "Cliente Once", "Empresa Propia",
 ]
 
 EQUIPMENT_PATTERNS = [
@@ -577,7 +577,7 @@ def build_sqlite_db(output_dir: str, db_path: str, verbose: bool = False):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def main():
-    parser = argparse.ArgumentParser(description="hermes-indexer v2.0 — Índice semántico INASC")
+    parser = argparse.ArgumentParser(description="hermes-indexer v2.0 — Índice semántico")
     parser.add_argument("--output", required=True, help="Directorio de salida")
     parser.add_argument("--unit", help="Indexar solo una unidad (V, X, Y, W)")
     parser.add_argument("--force", action="store_true", help="Forzar aunque índice vigente")

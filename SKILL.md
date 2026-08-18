@@ -14,12 +14,15 @@ Colección de integraciones documentadas. Si la tarea involucra alguno de estos 
 | Zoho MCP | `hermes-skills/zoho-mcp` | Correo, calendario o tareas de Zoho |
 | Samba/CIFS | `hermes-skills/samba-cifs` | Conexión a shares de red, indexación de archivos |
 | Workflows con Cron | `hermes-skills/cron-workflows` | Automatizar flujos entre servicios |
+| SeedDMS | `hermes-skills/seeddms-automation` | Automatizar SeedDMS vía REST API |
+| Deck Presentations | `hermes-skills/deck-presentations` | Presentaciones HTML narradas con TTS |
+| Hermes + OpenCode SDD | `hermes-skills/hermes-opencode-harness` | Spec-Driven Development con OpenCode |
+| Systemd Timers | `hermes-skills/systemd-timers` | Programar tareas Linux robustas (reemplaza cron) |
 
 ## Capítulos futuros
 
 | Capítulo | Estado |
 |----------|--------|
-| Noósfera Chat (Laravel) | Planeado |
-| Workflows con Cron | Planeado |
+| Chat embebido (Laravel) | Planeado |
 
 Si la tarea no coincide con ningún capítulo, procede con conocimiento general de Hermes.

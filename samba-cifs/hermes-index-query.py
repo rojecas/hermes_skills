@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""hermes-index-query — Consulta el índice SQLite de archivos INASC.
+"""hermes-index-query — Consulta el índice SQLite de archivos.
 
 Permite buscar archivos por código, cliente, año, tipo, texto libre (FTS5),
 fecha reciente, y más. Diseñado para ser llamado por Hermes como herramienta
@@ -7,7 +7,7 @@ rápida antes de recurrir a find/grep sobre CIFS.
 
 Uso:
     hermes-index-query --prefix STFR002
-    hermes-index-query --client Providencia --year 2026
+    hermes-index-query --client Cliente --year 2026
     hermes-index-query --query "tratamiento aguas"
     hermes-index-query --recent 7 --unit Y
     hermes-index-query --type Procedimiento --unit V --count
@@ -214,7 +214,7 @@ def query_index(db_path: str, args) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="hermes-index-query — Consulta el índice SQLite de archivos INASC"
+        description="hermes-index-query — Consulta el índice SQLite de archivos"
     )
     parser.add_argument("--prefix", help="Código de documento (STFR002, CSFR047...)")
     parser.add_argument("--client", help="Cliente (LIKE %%nombre%%)")

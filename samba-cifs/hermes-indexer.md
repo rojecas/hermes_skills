@@ -44,7 +44,7 @@ Un share de red empresarial puede tener 100,000+ archivos en cientos de subcarpe
 // Cada clave bajo 'partitions' define una partición independiente
 {
   "description": "Descripción humana de la unidad",
-  "root_path": "//192.168.1.10/Share",        // (opcional) default: //192.168.1.10/{letra}
+  "root_path": "//server/Share",        // (opcional) default: //server/{letra}
   "exclude": {                                  // (opcional)
     "dirs": ["Temp", "Carpeta"],
     "patterns": [".0*", "*_archivos"]
@@ -64,7 +64,7 @@ Un share de red empresarial puede tener 100,000+ archivos en cientos de subcarpe
 | Campo | Obligatorio | Descripción |
 |-------|:----------:|-------------|
 | `description` | ✅ | Nombre descriptivo de la unidad. Aparece en logs y `_meta.json` |
-| `root_path` | ❌ | Ruta UNC del share. Default: `//192.168.1.10/{letra}` |
+| `root_path` | ❌ | Ruta UNC del share. Default: `//server/{letra}` |
 | `exclude.dirs` | ❌ | Nombres exactos de carpetas a excluir |
 | `exclude.patterns` | ❌ | Patrones glob (`.0*` = archivo muerto) |
 | `partitions.{n}.root` | ✅ | Subdirectorio a indexar, o `"."` para la raíz |
@@ -76,7 +76,7 @@ Un share de red empresarial puede tener 100,000+ archivos en cientos de subcarpe
 ```json
 {
   "description": "Calidad, ISO, SST (SIC)",
-  "root_path": "//192.168.1.10/SIC",
+  "root_path": "//server/SIC",
   "exclude": {"dirs": ["Temp", "temp"], "patterns": []},
   "partitions": {
     "V_iso9001": {"root": "ISO 9001", "description": "Sistema de Gestión de Calidad ISO 9001"},
@@ -103,10 +103,10 @@ Para la configuración anterior, el indexador genera un JSON por partición:
 
 ```
 /ruta/indices/
-├── V_iso9001.json      ← metadatos + lista de archivos de /mnt/inasc/V/ISO 9001
-├── V_iso17025.json     ← metadatos + lista de archivos de /mnt/inasc/V/ISO 17025
-├── V_iso45001.json     ← metadatos + lista de archivos de /mnt/inasc/V/ISO 45001
-├── V_bpl_oms.json      ← metadatos + lista de archivos de /mnt/inasc/V/BPL OMS
+├── V_iso9001.json      ← metadatos + lista de archivos de /mnt/shares/V/ISO 9001
+├── V_iso17025.json     ← metadatos + lista de archivos de /mnt/shares/V/ISO 17025
+├── V_iso45001.json     ← metadatos + lista de archivos de /mnt/shares/V/ISO 45001
+├── V_bpl_oms.json      ← metadatos + lista de archivos de /mnt/shares/V/BPL OMS
 ├── _meta.json          ← metadatos globales (unidades, total de archivos, duración)
 └── hermes_index.sqlite ← base SQLite FTS5 consolidada (búsquedas <50ms)
 ```
@@ -175,7 +175,7 @@ Reindexar dos veces al día, en horas laborales, para mantener los índices actu
 0 16 * * * hermes-indexer --output /ruta/indices --build-db
 ```
 
-**⚠️ Lección aprendida:** NO programar de noche (2 AM). El servidor NAS (uwa) se apaga de noche (~8pm–7:30am), así que un cron nocturno falla con "No route to host". Programar en horas laborales (13:00 y 16:00), cuando el NAS está encendido.
+**⚠️ Lección aprendida:** NO programar de noche (2 AM). El servidor NAS se apaga de noche (~8pm–7:30am), así que un cron nocturno falla con "No route to host". Programar en horas laborales (13:00 y 16:00), cuando el NAS está encendido.
 
 ## Uso desde Hermes
 

@@ -122,7 +122,7 @@ function toggleAudio(n) {
 audio { display: none; }
 ```
 
-## INASC Branding
+## Branding
 
 ```css
 :root {
@@ -139,7 +139,7 @@ Logo source: PPTX `ppt/media/image2.png` → `logo.png`.
 
 ```
 folder/
-├── demo-andrew-deck.html
+├── demo-deck.html
 ├── logo.png
 ├── slide0.mp3 ... slideN.mp3
 ```

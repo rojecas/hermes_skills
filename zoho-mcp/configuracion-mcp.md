@@ -44,7 +44,7 @@ mcp_servers:
     command: "npx"
     args:
       - "mcp-remote"
-      - "https://usuario01-andrew-XXXX.zohomcp.com/mcp/XXXX/message"
+      - "https://usuario01-XXXX.zohomcp.com/mcp/XXXX/message"
       - "--transport"
       - "http-only"
     timeout: 120

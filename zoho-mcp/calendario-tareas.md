@@ -67,7 +67,7 @@ Zoho Calendar permite crear eventos en calendarios personales, grupales y compar
 ```json
 {
   "body": {
-    "caluid": "e34bd4c00f3c411f9bcf589436789fd9",
+    "caluid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "title": "Vacaciones Usuario 01",
     "dateandtime": {
       "start": "20260813",

@@ -48,11 +48,13 @@ El `accountId` NO es el User ID ni el email. Formato: `XXXXXXXXXXXXX8002`. Se de
 
 ## Tools por servicio
 
+Los nombres reales de las tools llevan el prefijo del servicio (`ZohoMail_`).
+
 ### Mail (8)
-`listEmails`, `SearchEmails`, `getMessageContent`, `getMessageAttachmentInfo`, `sendEmail`, `sendReplyEmail`, `getAllFolders`, `getMessageDetails`
+`ZohoMail_listEmails`, `ZohoMail_SearchEmails`, `ZohoMail_getMessageContent`, `ZohoMail_getMessageAttachmentInfo`, `ZohoMail_sendEmail`, `ZohoMail_sendReplyEmail`, `ZohoMail_getAllFolders`, `ZohoMail_getMessageDetails`
 
 ### Tasks (6)
-`addPersonalTask`, `listPersonalTasks`, `getPersonalTask`, `editPersonalTask`, `getSubtasksForPersonalTask`, `getSubtasksForGroupTask`
+`ZohoMail_addPersonalTask`, `ZohoMail_listPersonalTasks`, `ZohoMail_getPersonalTask`, `ZohoMail_editPersonalTask`, `ZohoMail_getSubtasksForPersonalTask`, `ZohoMail_getSubtasksForGroupTask`
 
 ### Calendar (5)
 `add_event`, `get_event`, `search_event_all_calendars`, `update_event`, `get_calendars`
@@ -62,8 +64,8 @@ El `accountId` NO es el User ID ni el email. Formato: `XXXXXXXXXXXXX8002`. Se de
 
 ## Reglas de uso
 
-- **Cuenta propia:** `sendEmail` directo
-- **Cuentas de terceros:** `sendEmail` en modo borrador (`mode: "draft"`)
+- **Enviar correo:** `ZohoMail_sendEmail` requiere `path_variables.accountId` + `body.fromAddress` (OBLIGATORIO, debe ser la cuenta autenticada) + `body.toAddress` + `body.subject` + `body.content` (el cuerpo). NO existe `body.body`.
+- **Cuentas de terceros:** `ZohoMail_sendEmail` en modo borrador (`mode: "draft"`)
 - **Calendar:** `caluid` usa `uid`, `dateandtime` es objeto `{start, end, timezone}`
 - **Tasks:** usar `title` + `description`, no solo `description`
 - **MCP por buzón:** cada cuenta necesita su propio servidor MCP

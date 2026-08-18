@@ -7,11 +7,11 @@ description: Automate SeedDMS via REST API — auth, CRUD, restore.
 
 Automate SeedDMS 6.x document management through its REST API. Covers authentication, document CRUD, folder tree walking, category assignment, and backup restoration from MySQL dumps.
 
-## Credentials & database access (INASC)
+## Credentials & database access
 
-- **DMS Andrew login:** `Andrew` / `Andrew-DMS-2026!` (group `agentesIA` id=5)
-- **MySQL DMS DB:** user `dbmaster`, password `Icl7007*`, database `seeddms`, host `uwa` (192.168.1.10)
-- **Andrew user ID:** 9, group agentesIA ID: 5
+- **DMS login:** `<usuario>` / `<contraseña>` (grupo de agentes, id=5)
+- **MySQL DMS DB:** user `<dbuser>`, password `<dbpass>`, database `seeddms`, host `<host-dms>`
+- **User ID:** 9, grupo de agentes ID: 5
 
 ## REST API authentication
 
@@ -124,9 +124,9 @@ To restrict to read+write without delete: dedicated group with ACL mode=2 on tar
 ### Complete folder creation workflow
 
 ```sql
--- 1. Create folder (owned by Andrew, traced)
+-- 1. Create folder (owned by the agent, traced)
 INSERT INTO tblFolders (id, name, comment, parent, folderList, inheritAccess, defaultAccess, date, owner) 
-VALUES (126, 'Folder Name', 'Creado por Andrew - descripción', 10, ':1:10:126:', 1, 2, UNIX_TIMESTAMP(), 9);
+VALUES (126, 'Folder Name', 'Creado por agente - descripción', 10, ':1:10:126:', 1, 2, UNIX_TIMESTAMP(), 9);
 
 -- 2. Replicate ACLs from ISO 9001 pattern (groups 1-4) + agentesIA (group 5)
 INSERT INTO tblACLs (target, targetType, userID, groupID, mode) VALUES
@@ -137,10 +137,10 @@ INSERT INTO tblACLs (target, targetType, userID, groupID, mode) VALUES
   (126, 1, -1, 5, 2);
 
 -- 3. Transfer ownership to the responsible person
-UPDATE tblFolders SET owner = 4 WHERE id = 126;  -- Angie = 4
+UPDATE tblFolders SET owner = 4 WHERE id = 126;  -- responsable = 4
 ```
 
-**Result:** Folder created by Andrew (comment preserved for traceability), owned by Angie, with proper ACLs matching ISO 9001 convention.
+**Result:** Folder created by the agent (comment preserved for traceability), owned by the responsible user, with proper ACLs matching the ISO convention.
 
 ```sql
 -- Get next ID

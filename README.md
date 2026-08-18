@@ -12,6 +12,7 @@ Skills, guías y patrones para integrar servicios con [Hermes Agent](https://git
 | [📑 SeedDMS Automation](seeddms-automation/) | Automatizar SeedDMS vía REST API: autenticación, CRUD de documentos y carpetas, backup y restauración. Patrones para sistemas de gestión documental ISO. |
 | [🎤 Deck Presentations](deck-presentations/) | Construir presentaciones HTML narradas con TTS (text-to-speech). Slides auto-play con audio por slide, navegación con teclado, estilo corporativo personalizable. |
 | [🔄 Hermes + OpenCode SDD Harness](hermes-opencode-harness/) | Integrar Hermes con OpenCode CLI para Spec-Driven Development. Hermes orquesta el ciclo completo (intake → spec → implement → review → release), OpenCode ejecuta con subagentes especializados. Aprendizajes sobre pitfalls del spec-validator, ciclo SDD no lineal, y protocolo de intake campo por campo. |
+| [⏱️ Systemd Timers](systemd-timers/) | Programar tareas Linux de forma robusta cuando cron no alcanza: recuperación tras apagado (Persistent=true), logs centralizados (journald) y dependencias (red, montajes). Migración paso a paso de crontab a timers de usuario. |
 
 ## Estructura
 
