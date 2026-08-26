@@ -197,6 +197,35 @@ El MCP URL mostrado en docs (`mcp.zoho.com/v1/servers/<id>/mcp`) no coincide con
 
 ---
 
+## 15. `npx mcp-remote` en scripts de cron: node no está en el PATH
+
+**Problema:** Un script Python que usa `npx mcp-remote` (bridge) falla al correr desde un cron job con `env: 'node': No such file or directory`, aunque funcione desde la terminal interactiva.
+
+**Causa:** el runtime de node embebido del agente vive en una carpeta privada (ej. `~/.hermes/node/bin`) que NO está en el PATH de los cron jobs.
+
+**Solución:** prepender la ruta del runtime al PATH dentro del propio script (asignación directa, no `setdefault` — si el PATH ya existe, `setdefault` no hace nada):
+
+```python
+os.environ["PATH"] = "/ruta/al/runtime/node/bin:" + os.environ.get("PATH", "")
+```
+
+---
+
+## 16. Estructura real de Tasks: listar vs detalle
+
+**Problema:** `listPersonalTasks` y `getPersonalTask` devuelven estructuras distintas; parsearlas igual produce `AttributeError` o estados incorrectos.
+
+**Realidad:**
+- `listPersonalTasks` → `data.tasks[]` con `statusValue` (3 = completada), `statusStr` (string, a veces vacío), `modifiedTime` (ISO con offset, ej. `2026-08-11T16:41:23-05:00`), `title`, `description`, `id`/`taskId`.
+- `getPersonalTask` → la tarea anida en `data.tasks[0]` (¡lista de 1!), `status` es string con espacios y mayúsculas (ej. `"In Progress"`), `statusValue` numérico, y `completedTime` puede venir `null` (usar `modifiedTime` para la ventana de tiempo).
+
+**Solución — normalizar ambas:**
+- Buscar la tarea en `data.tasks[0]` si existe; si no, en `data` directo.
+- Completada = `statusValue == 3` o `status` normalizado en `("completed", "completada")`.
+- Nunca asumir que `status`/`statusStr` es string (puede ser dict en algunos endpoints): convertir con `str()` antes de comparar.
+
+---
+
 ## Resumen rápido para depuración
 
 | Síntoma | Causa probable | Solución |
@@ -210,3 +239,5 @@ El MCP URL mostrado en docs (`mcp.zoho.com/v1/servers/<id>/mcp`) no coincide con
 | Tarea "No Title" | Solo se usó `description` | Agregar `title` |
 | Cuerpo de correo vacío | Vista previa de Zoho Mail | Abrir mensaje completo o revisar en otro cliente |
 | "Error while executing tool: sendEmail" | Nombre de tool sin prefijo | Usar `ZohoMail_sendEmail` con `path_variables.accountId` + `body.fromAddress` + `body.content` |
+| `env: 'node': No such file or directory` (cron) | node no está en el PATH del cron | Prepender el runtime de node al PATH dentro del script |
+| `AttributeError: 'dict' object has no attribute 'lower'` | `statusStr`/`status` con formato distinto | Normalizar: buscar en `data.tasks[0]`, comparar `statusValue == 3` |

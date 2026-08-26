@@ -106,6 +106,22 @@ Sin esta documentación, en 3 meses nadie recuerda cómo funciona.
 
 ---
 
+## 9. Un agente LLM en cron puede entrar en bucle y quemar el saldo
+
+**Problema:** Un monitor con agente LLM completo (cada 5 min, con tools de terminal + archivo) se descontroló: en lugar de responder rápido cuando no había nada que procesar, cada corrida hacía 10-30 tool calls (ejecutar scripts, leer/escribir archivos de estado grandes). El contexto de entrada crecía de ~8K a ~73K tokens dentro de UNA corrida, y con ~290 corridas en 2 días se consumieron decenas de millones de tokens. La cuenta API quedó sin saldo (HTTP 402 en todas las llamadas siguientes) y los servicios dependientes cayeron.
+
+**Causa raíz:** el prompt pedía "revisa y actúa" con acceso total a terminal/archivo. El agente "trabajaba" en cada corrida aunque no hubiera nada que hacer, y cada tool result se re-enviaba completo al proveedor en la siguiente llamada del mismo turno (eso es lo que factura: el input de CADA request, no solo el primero).
+
+**Solución:**
+- Todo lo mecánico (consultas, creación de tareas, dedupe) → script con costo $0 + `monitor` (ver Patrón 6).
+- El LLM solo despierta cuando el output del script cambia.
+- Si el agente es imprescindible: limitar `enabled_toolsets` a lo mínimo y el prompt debe decir explícitamente "si no hay nada que procesar, responde [SILENT]".
+- Vigilar el consumo diario (panel del proveedor o el registro de uso del agente): un día normal es ~1-2M tokens; un día de decenas de millones con cientos de entradas del mismo job = bucle.
+
+**Señal de alarma:** en el registro de uso (o el panel del proveedor), un día con decenas de millones de tokens y cientos de ejecuciones del mismo job.
+
+---
+
 ## Resumen rápido
 
 | Síntoma | Causa | Solución |
@@ -116,3 +132,4 @@ Sin esta documentación, en 3 meses nadie recuerda cómo funciona.
 | Rate limit del modelo | Múltiples crons simultáneos | Escalonar horarios |
 | Imposible depurar | Mega-cron con 10 flujos | Un cron por flujo |
 | Gasto innecesario de tokens | Agente para tarea mecánica | `no_agent: true` + script |
+| Consumo explosivo / saldo agotado | Agente LLM en bucle con tools de terminal/archivo | Script mecánico + `monitor` (Patrón 6) |

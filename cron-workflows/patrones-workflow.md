@@ -97,6 +97,38 @@ Si encuentras "Facturar X" completada → notifica "Flujo X completado".
 
 **IMPORTANTE:** Cada paso debe verificar que la tarea disparadora se completó en la última ventana de tiempo (últimos 5 minutos). Así el mismo cron puede manejar toda la cadena sin crear duplicados.
 
+## Patrón 6: Monitor script determinista (LLM bajo demanda)
+
+**Problema:** Un monitor con agente LLM completo (cada 5 min, con tools de terminal/archivo) puede salirse de control: en cada corrida el agente hace decenas de tool calls, el contexto crece y el costo explota (ver lección 9 de lecciones-aprendidas).
+
+**Solución:** Dividir el trabajo en dos capas:
+
+1. **Script mecánico (costo $0)** — hace las consultas (API/Zoho/estado) y las acciones deterministas (crear tarea con dedupe). Imprime un **output estable** que resume el estado.
+2. **Agente LLM bajo demanda** — despierta SOLO cuando el output del script cambia (novedad real), con el diff inyectado.
+
+**Configuración del cron job:**
+- `script`: el script (su stdout se inyecta al agente cuando corre)
+- `monitor`: el mismo script (corre cada tick; output idéntico al tick anterior = el agente NO corre)
+- `enabled_toolsets`: solo lo que el agente necesita para procesar la novedad (ej. `file`)
+
+**Reglas del script:**
+- Output determinista: sin timestamps, sin orden aleatorio (o el monitor parecerá "cambiado" cada tick y despertará al agente en cada corrida).
+- Línea `NOVEDADES: N` + una línea de estado por paso. Cuando ocurre algo, el texto cambia una vez y queda estable.
+- Dedupe persistente en un archivo de estado (nunca re-crear a partir de la misma tarea disparadora).
+- Errores MCP/API → líneas `ERROR_*` en el output (cambia → el agente despierta y notifica/diagnostica).
+
+**Ejemplo de output:**
+```
+MONITOR v1.0
+PASO1: sin_novedades
+PASO2: sin_novedades
+NOVEDADES: 0
+```
+
+**Notas:**
+- El primer tick tras activar el monitor es "baseline": el agente corre una vez y debe responder `[SILENT]` si no hay novedad.
+- Si la acción de novedad necesita LLM (ej. extraer definiciones de texto libre), el script vuelca los datos crudos a un archivo de estado y el agente (que despierta una sola vez) lo procesa y escribe el resultado.
+
 ## Anti-patrones
 
 ### ❌ Crear tareas sin verificar si ya existen
